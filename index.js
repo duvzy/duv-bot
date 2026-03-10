@@ -77,11 +77,12 @@ client.on("messageCreate", async (message) => {
     command.execute(message, args, client);
 });
 
-// -----------------------
+// ----------------------
 // Snipe mensajes borrados
-// -----------------------
+// ----------------------
 
 client.on("messageDelete", message => {
+
     if (!message.guild) return;
     if (!message.author) return;
     if (message.author.bot) return;
@@ -96,10 +97,10 @@ client.on("messageDelete", message => {
         sticker: message.stickers.first()?.url || null,
         time: new Date()
     };
-    
+
     snipes.unshift(data);
-    
-    client.snipes.set(message.channel.id, snipes.slince(0, 3));
+
+    client.snipes.set(message.channel.id, snipes.slice(0, 3));
 
 });
 
