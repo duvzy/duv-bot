@@ -77,9 +77,9 @@ client.on("messageCreate", async (message) => {
     command.execute(message, args, client);
 });
 
-// ----------------------
+// -----------------------
 // Snipe mensajes borrados
-// ----------------------
+// -----------------------
 
 client.on("messageDelete", message => {
     if (!message.guild) return;
