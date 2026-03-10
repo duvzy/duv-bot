@@ -7,21 +7,23 @@ module.exports = {
 
         const snipes = client.snipes.get(message.channel.id);
 
-        if (!snipes || snipes.length ===0) {
+        if (!snipes || snipes.length === 0) {
             return message.reply("No hay mensajes eliminados.");
         }
 
         const index = args[0] ? parseInt(args[0]) - 1 : 0;
 
         if (!snipes[index]) {
-            return message.reply("📢 No hay mensajes eliminados guardados.");
+            return message.reply("⚠️ No hay tantos mensajes eliminados.");
         }
-        
-        const embed = new EmbedBuilder ()
-            .setAuthor({ name: snipes.author, inconURL: snipe.avatar })
+
+        const snipe = snipes[index];
+
+        const embed = new EmbedBuilder()
+            .setAuthor({ name: snipe.author, iconURL: snipe.avatar })
             .setDescription(snipe.content)
             .setColor("Red")
-            .setFooter({ text: `Snipe ${index + 1}` })
+            .setFooter({ text: `Mensaje eliminado (${index + 1})` })
             .setTimestamp(snipe.time);
 
         if (snipe.image) embed.setImage(snipe.image);
@@ -30,5 +32,4 @@ module.exports = {
         message.channel.send({ embeds: [embed] });
 
     }
-
 };
