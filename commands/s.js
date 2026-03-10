@@ -14,7 +14,7 @@ module.exports = {
         const index = args[0] ? parseInt(args[0]) - 1 : 0;
 
         if (!snipes[index]) {
-            return message.reply("⚠️ No hay mensajes eliminados guardados.");
+            return message.reply("📢 No hay mensajes eliminados guardados.");
         }
         
         const embed = new EmbedBuilder ()
@@ -30,4 +30,5 @@ module.exports = {
         message.channel.send({ embeds: [embed] });
 
     }
+
 };
