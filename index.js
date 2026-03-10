@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits } = require("discord.js");
+const { Client, Collection, GatewayIntentBits, Sticker } = require("discord.js");
 const { DisTube } = require("distube");
 const { YouTubePlugin } = require("@distube/youtube");
 const { loadSlash } = require("./handlers/slashHandler");
@@ -17,6 +17,7 @@ const client = new Client({
 
 client.commands = new Collection();
 client.slashCommands = new Collection();
+client.snipes = new Map();
 
 // 🎵 DisTube
 client.distube = new DisTube(client, {
@@ -74,6 +75,32 @@ client.on("messageCreate", async (message) => {
     if (!command) return;
 
     command.execute(message, args, client);
+});
+
+// ----------------------
+// Snipe mensajes borrados
+// ----------------------
+
+client.on("messageDelete", message => {
+    if (!message.guild) return;
+    if (!message.author) return;
+    if (message.author.bot) return;
+
+    const snipes = client.snipes.get(message.channel.id) || [];
+
+    const data = {
+        content: message.content || "Sin texto",
+        author: message.author.tag,
+        avatar: message.author.displayAvatarURL({ dynamic: true }),
+        image: message.attachments.first()?.url || null,
+        sticker: message.stickers.first()?.url || null,
+        time: new Date()
+    };
+    
+    snipes.unshift(data);
+    
+    client.snipes.set(message.channel.id, snipes.slince(0, 3));
+
 });
 
 // ----------------------
