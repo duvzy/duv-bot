@@ -54,7 +54,7 @@ module.exports = {
       const gif = gifs[Math.floor(Math.random() * gifs.length)];
 
       const embed = new EmbedBuilder()
-        .setColor("Pink")
+        .setColor("#ff69b4")
         .setDescription(`🤗 **${message.author.username}** ha abrazado a **${user.username}**!\n\n💞 Total abrazos: **${data[key]}**`)
         .setImage(gif);
 
