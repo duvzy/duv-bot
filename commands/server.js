@@ -16,7 +16,7 @@ module.exports = {
             .addFields(
                 {
                     name: "👑 Dueño",
-                    value: `${owner.user.tag}`,
+                    value: `<@${owner.id}>`,
                     inline: true
                 },
                 {
