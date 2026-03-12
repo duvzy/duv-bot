@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits, Sticker } = require("discord.js");
+const { Client, Collection, GatewayIntentBits, Sticker, EmbedBuilder } = require("discord.js");
 const { DisTube } = require("distube");
 const { YouTubePlugin } = require("@distube/youtube");
 const { loadSlash } = require("./handlers/slashHandler");
@@ -28,11 +28,15 @@ client.distube = new DisTube(client, {
 // ----------------------
 // Avatar history
 // ----------------------
+
 client.on("userUpdate", async (oldUser, newUser) => {
+
     if (oldUser.avatar === newUser.avatar) return;
 
     const dataPath = "./avatarTracker.json";
+
     let data = {};
+
     if (fs.existsSync(dataPath)) {
         data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
     }
@@ -45,21 +49,27 @@ client.on("userUpdate", async (oldUser, newUser) => {
     });
 
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+
 });
 
 // ----------------------
 // Cargar comandos
 // ----------------------
+
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 
 for (const file of commandFiles) {
+
     const command = require(`./commands/${file}`);
+
     client.commands.set(command.name, command);
+
 }
 
 // ----------------------
 // Prefijo
 // ----------------------
+
 const prefix = ".";
 
 client.on("messageCreate", async (message) => {
@@ -69,12 +79,15 @@ client.on("messageCreate", async (message) => {
     if (!message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
+
     const commandName = args.shift().toLowerCase();
 
     const command = client.commands.get(commandName);
+
     if (!command) return;
 
     command.execute(message, args, client);
+
 });
 
 // ----------------------
@@ -105,6 +118,55 @@ client.on("messageDelete", message => {
 });
 
 // ----------------------
+// BOTONES HUG
+// ----------------------
+
+client.on("interactionCreate", async interaction => {
+
+    if (!interaction.isButton()) return;
+
+    if (!interaction.customId.startsWith("hugback_")) return;
+
+    const originalUser = interaction.customId.split("_")[1];
+
+    const target = await client.users.fetch(originalUser);
+
+    const path = "./hugs.json";
+
+    let data = {};
+
+    if (fs.existsSync(path)) {
+        data = JSON.parse(fs.readFileSync(path));
+    }
+
+    const key = `${interaction.user.id}_${target.id}`;
+
+    if (!data[key]) data[key] = 0;
+
+    data[key]++;
+
+    fs.writeFileSync(path, JSON.stringify(data, null, 2));
+
+    const gifs = [
+        "https://c.tenor.com/nd_M3VFwVD0AAAAd/tenor.gif",
+        "https://c.tenor.com/SYsRdiK-T7gAAAAd/tenor.gif",
+        "https://c.tenor.com/k_aLQ7SgD04AAAAd/tenor.gif",
+        "https://c.tenor.com/yMghDOetsPUAAAAC/tenor.gif",
+        "https://c.tenor.com/FGb7ZIMzus8AAAAC/tenor.gif"
+    ];
+
+    const gif = gifs[Math.floor(Math.random() * gifs.length)];
+
+    const embed = new EmbedBuilder()
+        .setColor("Pink")
+        .setDescription(`🤗 **${interaction.user.username}** ha abrazado de vuelta a **${target.username}**!\n\n💞 Total abrazos: **${data[key]}**`)
+        .setImage(gif);
+
+    interaction.reply({ embeds: [embed] });
+
+});
+
+// ----------------------
 // Eventos de música
 // ----------------------
 
@@ -129,12 +191,16 @@ client.login(process.env.TOKEN);
 client.on("ready", async () => {
 
     try {
+
         await loadSlash(client);
+
         console.log("» | Comandos cargados con éxito");
         console.log(`» | Bot encendido como: ${client.user.tag}`);
 
     } catch (err) {
+
         console.error(`» | Error al cargar comandos => ${err}`);
+
     }
 
 });
