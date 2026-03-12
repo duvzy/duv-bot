@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require/"discord.js";
+const { EmbedBuilder } = require("discord.js");
 
 module.exports = {
     name: "server",
@@ -26,7 +26,7 @@ module.exports = {
                 },
                 {
                     name: "📅 Creado",
-                    value: `${guild.memberCount}`,
+                    value: `<t:${parseInt(guild.createdTimestamp / 1000)}:R>`,
                     inline: true
                 },
                 {
