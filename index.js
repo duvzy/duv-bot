@@ -169,7 +169,7 @@ client.on("interactionCreate", async interaction => {
     const gif = gifs[Math.floor(Math.random() * gifs.length)];
 
     const embed = new EmbedBuilder()
-        .setColor("Pink")
+        .setColor("#ff69b4")
         .setDescription(`🤗 **${interaction.user.username}** ha abrazado de vuelta a **${target.username}**!\n\n💞 Total abrazos: **${data[key]}**`)
         .setImage(gif);
 
