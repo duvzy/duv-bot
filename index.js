@@ -118,62 +118,104 @@ client.on("messageDelete", message => {
 });
 
 // ----------------------
-// BOTONES HUG
+// BOTONES (HUG + HI)
 // ----------------------
 
 client.on("interactionCreate", async interaction => {
 
     if (!interaction.isButton()) return;
 
-    if (!interaction.customId.startsWith("hugback_")) return;
+    // ----------------------
+    // BOTON HUG
+    // ----------------------
 
-    const parts = interaction.customId.split("_");
+    if (interaction.customId.startsWith("hugback_")) {
 
-    const authorId = parts[1];
-    const targetId = parts[2];
+        const parts = interaction.customId.split("_");
 
-    // solo la persona abrazada puede usar el botón
-    if (interaction.user.id !== targetId) {
-        return interaction.reply({
-            content: "Solo la persona abrazada puede usar este botón 🤗",
-            ephemeral: true
-        });
+        const authorId = parts[1];
+        const targetId = parts[2];
+
+        if (interaction.user.id !== targetId) {
+            return interaction.reply({
+                content: "Solo la persona abrazada puede usar este botón 🤗",
+                ephemeral: true
+            });
+        }
+
+        const target = await client.users.fetch(authorId);
+
+        const path = "./hugs.json";
+
+        let data = {};
+
+        if (fs.existsSync(path)) {
+            data = JSON.parse(fs.readFileSync(path, "utf8"));
+        }
+
+        const key = `${interaction.user.id}_${target.id}`;
+
+        if (!data[key]) data[key] = 0;
+
+        data[key]++;
+
+        fs.writeFileSync(path, JSON.stringify(data, null, 2));
+
+        const gifs = [
+            "https://c.tenor.com/nd_M3VFwVD0AAAAd/tenor.gif",
+            "https://c.tenor.com/SYsRdiK-T7gAAAAd/tenor.gif",
+            "https://c.tenor.com/k_aLQ7SgD04AAAAd/tenor.gif",
+            "https://c.tenor.com/yMghDOetsPUAAAAC/tenor.gif",
+            "https://c.tenor.com/FGb7ZIMzus8AAAAC/tenor.gif"
+        ];
+
+        const gif = gifs[Math.floor(Math.random() * gifs.length)];
+
+        const embed = new EmbedBuilder()
+            .setColor("#ff69b4")
+            .setDescription(`🤗 **${interaction.user.username}** ha abrazado de vuelta a **${target.username}**!\n\n💞 Total abrazos: **${data[key]}**`)
+            .setImage(gif);
+
+        return interaction.reply({ embeds: [embed] });
+
     }
 
-    const target = await client.users.fetch(authorId);
+    // ----------------------
+    // BOTON HI
+    // ----------------------
 
-    const path = "./hugs.json";
+    if (interaction.customId.startsWith("hiback_")) {
 
-    let data = {};
+        const parts = interaction.customId.split("_");
 
-    if (fs.existsSync(path)) {
-        data = JSON.parse(fs.readFileSync(path, "utf8"));
+        const authorId = parts[1];
+        const targetId = parts[2];
+
+        if (interaction.user.id !== targetId) {
+            return interaction.reply({
+                content: "Solo la persona saludada puede devolver el saludo 👀",
+                ephemeral: true
+            });
+        }
+
+        const target = await client.users.fetch(authorId);
+
+        const gifs = [
+            "https://media.tenor.com/J7eGDvGeP9IAAAAC/anime-hi.gif",
+            "https://media.tenor.com/YtwEoWZ6qOAAAAAC/hello-hi.gif",
+            "https://media.tenor.com/Qs9n1bR8h3gAAAAC/hello-anime.gif"
+        ];
+
+        const gif = gifs[Math.floor(Math.random() * gifs.length)];
+
+        const embed = new EmbedBuilder()
+            .setColor("#5865F2")
+            .setDescription(`👋 **${interaction.user.username}** saludó de vuelta a **${target.username}**`)
+            .setImage(gif);
+
+        return interaction.reply({ embeds: [embed] });
+
     }
-
-    const key = `${interaction.user.id}_${target.id}`;
-
-    if (!data[key]) data[key] = 0;
-
-    data[key]++;
-
-    fs.writeFileSync(path, JSON.stringify(data, null, 2));
-
-    const gifs = [
-        "https://c.tenor.com/nd_M3VFwVD0AAAAd/tenor.gif",
-        "https://c.tenor.com/SYsRdiK-T7gAAAAd/tenor.gif",
-        "https://c.tenor.com/k_aLQ7SgD04AAAAd/tenor.gif",
-        "https://c.tenor.com/yMghDOetsPUAAAAC/tenor.gif",
-        "https://c.tenor.com/FGb7ZIMzus8AAAAC/tenor.gif"
-    ];
-
-    const gif = gifs[Math.floor(Math.random() * gifs.length)];
-
-    const embed = new EmbedBuilder()
-        .setColor("#ff69b4")
-        .setDescription(`🤗 **${interaction.user.username}** ha abrazado de vuelta a **${target.username}**!\n\n💞 Total abrazos: **${data[key]}**`)
-        .setImage(gif);
-
-    interaction.reply({ embeds: [embed] });
 
 });
 
