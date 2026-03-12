@@ -1,18 +1,12 @@
-const { 
-EmbedBuilder, 
-ActionRowBuilder, 
-ButtonBuilder, 
-ButtonStyle 
-} = require("discord.js");
-
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const fs = require("fs");
 
 const gifs = [
-"https://media.tenor.com/0AVbKGY_MxMAAAAC/anime-hug.gif",
-"https://media.tenor.com/ZzorehuOxt8AAAAC/hug-anime.gif",
-"https://media.tenor.com/OXCV_qL-V60AAAAC/mochi-mochi-peach-cat-hug.gif",
-"https://media.tenor.com/jU9c9w82GKAAAAAC/love-hug.gif",
-"https://media.tenor.com/wOmoeFj1YdAAAAAC/hug-anime.gif"
+"https://c.tenor.com/nd_M3VFwVD0AAAAd/tenor.gif",
+"https://c.tenor.com/SYsRdiK-T7gAAAAd/tenor.gif",
+"https://c.tenor.com/k_aLQ7SgD04AAAAd/tenor.gif",
+"https://c.tenor.com/yMghDOetsPUAAAAC/tenor.gif",
+"https://c.tenor.com/FGb7ZIMzus8AAAAC/tenor.gif"
 ];
 
 module.exports = {
@@ -21,14 +15,15 @@ module.exports = {
     async execute(message, args, client) {
 
         const user = message.mentions.users.first();
-        if (!user) return message.reply("Menciona a alguien para abrazar.");
 
-        if (user.id === message.author.id)
-        return message.reply("No puedes abrazarte a ti mismo 🤨");
+        if (!user) {
+            return message.reply("Menciona a alguien para abrazar 🤗");
+        }
 
         const path = "./hugs.json";
 
         let data = {};
+
         if (fs.existsSync(path)) {
             data = JSON.parse(fs.readFileSync(path, "utf8"));
         }
@@ -61,5 +56,4 @@ module.exports = {
         });
 
     }
-};
 };
