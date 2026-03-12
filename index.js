@@ -127,16 +127,27 @@ client.on("interactionCreate", async interaction => {
 
     if (!interaction.customId.startsWith("hugback_")) return;
 
-    const originalUser = interaction.customId.split("_")[1];
+    const parts = interaction.customId.split("_");
 
-    const target = await client.users.fetch(originalUser);
+    const authorId = parts[1];
+    const targetId = parts[2];
+
+    // solo la persona abrazada puede usar el botón
+    if (interaction.user.id !== targetId) {
+        return interaction.reply({
+            content: "Solo la persona abrazada puede usar este botón 🤗",
+            ephemeral: true
+        });
+    }
+
+    const target = await client.users.fetch(authorId);
 
     const path = "./hugs.json";
 
     let data = {};
 
     if (fs.existsSync(path)) {
-        data = JSON.parse(fs.readFileSync(path));
+        data = JSON.parse(fs.readFileSync(path, "utf8"));
     }
 
     const key = `${interaction.user.id}_${target.id}`;
