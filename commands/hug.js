@@ -14,7 +14,9 @@ module.exports = {
 
     async execute(message, args, client) {
 
-        const user = message.mentions.users.first();
+        const user =
+            message.mentions.users.first() ||
+            client.users.cache.get(args[0]);
 
         if (!user) {
             return message.reply("Menciona a alguien para abrazar 🤗");
