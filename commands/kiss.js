@@ -3,7 +3,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("
 module.exports = {
 
 name: "kiss",
-aliases: [k],
+aliases: ["k"],
 
 description: "Besa a alguien 💋",
 
