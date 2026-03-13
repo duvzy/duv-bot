@@ -147,9 +147,8 @@ const embed = new EmbedBuilder()
 .setDescription(`💋 **${interaction.user.username}** aceptó el beso de **${target.username}**!\n\n💕 Total besos: **${data[key]}**`)
 .setImage(gif);
 
-return interaction.update({
-embeds:[embed],
-components:[]
+return interaction.reply({
+embeds:[embed]
 });
 
 }
@@ -187,9 +186,8 @@ const embed = new EmbedBuilder()
 .setDescription(`❌ **${interaction.user.username}** rechazó el beso de **${target.username}**`)
 .setImage(gif);
 
-return interaction.update({
-embeds:[embed],
-components:[]
+return interaction.reply({
+embeds:[embed]
 });
 
 }
