@@ -99,19 +99,19 @@ return interaction.reply({ embeds: [embed] });
 }
 
 //
-// BOTON KISS
+// BOTON KISS ACEPTAR
 //
 
-if (interaction.customId.startsWith("kissback_")) {
+if (interaction.customId.startsWith("kiss_accept_")) {
 
 const parts = interaction.customId.split("_");
 
-const authorId = parts[1];
-const targetId = parts[2];
+const authorId = parts[2];
+const targetId = parts[3];
 
 if (interaction.user.id !== targetId) {
 return interaction.reply({
-content: "Solo la persona besada puede devolver el beso 💋",
+content: "Solo la persona mencionada puede responder 💀",
 ephemeral: true
 });
 }
@@ -123,7 +123,7 @@ const path = "./kisses.json";
 let data = {};
 
 if (fs.existsSync(path)) {
-data = JSON.parse(fs.readFileSync(path, "utf8"));
+data = JSON.parse(fs.readFileSync(path,"utf8"));
 }
 
 const key = `${interaction.user.id}_${target.id}`;
@@ -132,25 +132,67 @@ if (!data[key]) data[key] = 0;
 
 data[key]++;
 
-fs.writeFileSync(path, JSON.stringify(data, null, 2));
+fs.writeFileSync(path, JSON.stringify(data,null,2));
 
 const gifs = [
-"https://media.tenor.com/GH7k9u9F8aQAAAAC/anime-kiss.gif",
-"https://media.tenor.com/4dL6dX6G8wUAAAAC/anime-kiss.gif",
-"https://media.tenor.com/VJ3gXq8dQxEAAAAC/kiss-anime.gif"
+"https://c.tenor.com/SZ8-4vDwi6cAAAAC/tenor.gif",
+"https://c.tenor.com/_JqioiurJwIAAAAd/tenor.gif",
+"https://c.tenor.com/ebi-Gt7Rr_IAAAAd/tenor.gif"
 ];
 
-const gif = gifs[Math.floor(Math.random() * gifs.length)];
+const gif = gifs[Math.floor(Math.random()*gifs.length)];
 
 const embed = new EmbedBuilder()
 .setColor("#ff4da6")
-.setDescription(`💋 **${interaction.user.username}** besó de vuelta a **${target.username}**!\n\n💕 Total besos: **${data[key]}**`)
+.setDescription(`💋 **${interaction.user.username}** aceptó el beso de **${target.username}**!\n\n💕 Total besos: **${data[key]}**`)
 .setImage(gif);
 
-return interaction.reply({ embeds: [embed] });
+return interaction.update({
+embeds:[embed],
+components:[]
+});
+
+}
+
+//
+// BOTON KISS RECHAZAR
+//
+
+if (interaction.customId.startsWith("kiss_reject_")) {
+
+const parts = interaction.customId.split("_");
+
+const authorId = parts[2];
+const targetId = parts[3];
+
+if (interaction.user.id !== targetId) {
+return interaction.reply({
+content: "Solo la persona mencionada puede responder 💀",
+ephemeral: true
+});
+}
+
+const target = await client.users.fetch(authorId);
+
+const gifs = [
+"https://c.tenor.com/XiYuU9h44-AAAAAC/tenor.gif",
+"https://c.tenor.com/Sv8LQZAoQmgAAAAC/tenor.gif",
+"https://c.tenor.com/7xFcP1KWjY0AAAAC/tenor.gif"
+];
+
+const gif = gifs[Math.floor(Math.random()*gifs.length)];
+
+const embed = new EmbedBuilder()
+.setColor("#ff0000")
+.setDescription(`❌ **${interaction.user.username}** rechazó el beso de **${target.username}**`)
+.setImage(gif);
+
+return interaction.update({
+embeds:[embed],
+components:[]
+});
 
 }
 
 });
-
 };
