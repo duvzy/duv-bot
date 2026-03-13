@@ -2,35 +2,36 @@ const fs = require("fs");
 
 module.exports = {
     name: "hb",
+    description: "Hardban a un usuario",
 
-    async execute(message, args) {
-        
+    async execute(message, args, client) {
+
         if (!message.member.permissions.has("BanMembers")) {
-            return message.reply("No tienes permiso para usar este comando.");
+            return message.reply("❌ No tienes permiso para usar este comando.");
         }
 
         const user =
-            message.mentions.user.first() ||
-            await message.client.user.fetch(args[0]).catch(() => null);
+            message.mentions.users.first() ||
+            await client.users.fetch(args[0]).catch(() => null);
 
-        if (!user) return message.reply("Menciona o pon el ID del usuario.");
-
-        const path = "./hardbans.json";
-
-        let data = {};
-
-        if (fs.existsSync(path)) {
-            data = JSON.parse(fs.readFileSync(path));
+        if (!user) {
+            return message.reply("⚠️ Menciona a un usuario o pon su ID.");
         }
 
-        data[user.id] = true;
+        try {
 
-        fs.writeFileSync(path, JSON.stringify(data, null, 2));
+            await message.guild.members.ban(user.id, {
+                reason: `Hardban por ${message.author.tag}`
+            });
 
-        await message.guild.members.ban(user.id, {
-            reason: `Harban por ${message.author.tag}`
-        });
+            message.channel.send(`🚫 **${user.tag}** fue hardbaneado.`);
 
-        message.channel.send(`🚫 ${user.tag} fue hardbaneado.`);
+        } catch (err) {
+
+            console.error(err);
+            message.reply("❌ No pude banear a ese usuario.");
+
+        }
+
     }
 };
