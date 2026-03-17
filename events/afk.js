@@ -6,6 +6,8 @@ module.exports = (client) => {
 
         if (!message.guild || message.author.bot) return;
 
+        if (message.content.startsWith(".afk")) return;
+
         const path = "./afk.json";
         let data = {};
 
