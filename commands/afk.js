@@ -18,15 +18,22 @@ module.exports = {
 
         data[message.author.id] = {
             reason: reason,
-            time: Date.now()
+            time: Date()
         };
 
         fs.writeFileSync(path, JSON.stringify(data, null, 2));
 
         const embed = new EmbedBuilder()
             .setColor("#2b2d31")
-            .setTitle("[AFK] Who")
-            .setDescription(`**Estado ausente establecido.**\n\n**Motivo:** ${reason}`)
+            .setTitle(`[AFK] ${message.author.username}`)
+            .setDescription(
+            `**Estado ausente establecido.**
+
+            **Motivo:** ${reason}
+
+            Avisaré a quienes te mencionen.`
+            )
+            
             .setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
 
         message.reply({ embeds: [embed] });
