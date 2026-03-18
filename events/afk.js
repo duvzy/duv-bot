@@ -31,10 +31,26 @@ module.exports = (client) => {
             if (data[user.id]) {
 
                 const afkData = data[user.id];
-                const time = Math.floor((Date.now() - afkData.time) / 1000);
+                const diff = Date.now() - afkData.time;
+
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+
+                let time;
+
+                if (hours > 0) {
+                    time = `${hours}h ${minutes % 60}m`;
+                } else if (minutes > 0) {
+                    time = `${minutes}m ${seconds % 60}s`;
+                } else {
+                    time = `${seconds}s`;
+                }
 
                 message.reply(
-                    `💤 **${user.username}** está AFK\nMotivo: ${afkData.reason}\nHace: ${time}s`
+                `💤 **${user.username}** está AFK
+                Motivo: ${afkData.reason}
+                Hace: ${time}`
                 );
             }
 
