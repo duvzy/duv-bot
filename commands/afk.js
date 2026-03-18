@@ -18,7 +18,7 @@ module.exports = {
 
         data[message.author.id] = {
             reason: reason,
-            time: Date()
+            time: Date.now()
         };
 
         fs.writeFileSync(path, JSON.stringify(data, null, 2));
@@ -33,7 +33,7 @@ module.exports = {
 
             Avisaré a quienes te mencionen.`
             )
-            
+
             .setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
 
         message.reply({ embeds: [embed] });
