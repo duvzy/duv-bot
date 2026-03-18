@@ -49,9 +49,9 @@ module.exports = (client) => {
 
                 message.reply(
                 `💤 **${user.username}** está AFK
-                Motivo: ${afkData.reason}
-                Hace: ${time}`
-                );
+            Motivo: ${afkData.reason}
+            Hace: ${time}`
+            );
             }
 
         });
