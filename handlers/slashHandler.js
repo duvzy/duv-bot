@@ -1,18 +1,19 @@
-const { readdirSync } = require("node:fs");
+const fs = require("fs");
+const path = require("path");
 
-module.exports = {
+async function loadSlash(client) {
 
-	async loadSlash(client){
-		for(const category of readdirSync("./slashcommands")){
-			for(const otherCategory of readdirSync(`./slashcommands/${category}`)){
-				for(const fileName of readdirSync(`./slashcommands/${category}/${otherCategory}`).filter((file) => file.endsWith(".js"))){
+    const slashFiles = fs.readdirSync("./slashcommands").filter(file => file.endsWith(".js"));
 
-					const command = require(`../slashcommands/${category}/${otherCategory}/${fileName}`);
-					client.slashCommands.set(command.name, command);
-				}
-			}
-		}
-		await client.application?.commands.set(client.slashCommands.map((x) => x));
-	},
-};
+    for (const file of slashFiles) {
 
+        const command = require(`../slashcommands/${file}`);
+
+        client.slashCommands.set(command.data.name, command);
+
+    }
+
+    console.log("✔ Slash commands cargados");
+}
+
+module.exports = { loadSlash };
