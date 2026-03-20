@@ -117,7 +117,7 @@ client.distube
 // READY
 // ----------------------
 
-client.on("ready", async () => {
+client.on("clientReady", async () => {
 
     try {
         await loadSlash(client);
