@@ -16,6 +16,6 @@ module.exports = {
             SendMessages: false
         });
 
-        message.reply("🔒 Canal bloqueado. Nadie puede escribir.");
+        message.reply("🔒 Canal lockeado.");
     }
 };
