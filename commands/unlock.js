@@ -16,6 +16,6 @@ module.exports = {
             SendMessages: null
         });
 
-        message.reply("🔓 Canal desbloqueado. Ya pueden escribir.");
+        message.reply("🔓 Canal unlock.");
     }
 };
