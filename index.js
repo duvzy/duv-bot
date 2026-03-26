@@ -1,108 +1,108 @@
-const { Client, Collection, GatewayIntentBits } = require("discord.js");
-const { DisTube } = require("distube");
-const { YouTubePlugin } = require("@distube/youtube");
-const { loadSlash } = require("./handlers/slashHandler");
-require("dotenv").config();
-const fs = require("fs");
-const ffmpeg = require("ffmpeg-static");
+    const { Client, Collection, GatewayIntentBits } = require("discord.js");
+    const { DisTube } = require("distube");
+    const { YouTubePlugin } = require("@distube/youtube");
+    const { loadSlash } = require("./handlers/slashHandler");
+    require("dotenv").config();
+    const fs = require("fs");
+    const ffmpeg = require("ffmpeg-static");
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.MessageContent,
-    ],
-});
-
-client.commands = new Collection();
-client.slashCommands = new Collection();
-client.snipes = new Map();
-
-// 🎵 DIS TUBE
-client.distube = new DisTube(client, {
-    emitNewSongOnly: true,
-    plugins: [new YouTubePlugin()],
-    ffmpeg: {
-        path: ffmpeg,
-        args: ['-analyzeduration', '0', '-loglevel', '0', '-vn']
-    },
-    savePreviousSongs: true,
-});
-
-// ----------------------
-// CARGAR EVENTOS Y COMANDOS
-// ----------------------
-
-const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
-for (const file of eventFiles) {
-    const event = require(`./events/${file}`);
-    event(client);
-}
-
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
-}
-
-// ----------------------
-// PREFIJO
-// ----------------------
-
-const prefix = ".";
-
-client.on("messageCreate", async (message) => {
-    if (message.author.bot || !message.guild || !message.content.startsWith(prefix)) return;
-
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
-
-    const command = client.commands.get(commandName) ||
-                    client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-
-    if (!command) return;
-
-    try {
-        await command.execute(message, args, client);
-    } catch (err) {
-        console.error("Error en comando:", err);
-        if (message.channel) {
-            message.channel.send("❌ Ocurrió un error al ejecutar el comando.").catch(() => {});
-        }
-    }
-});
-
-// Slash commands
-
-// ----------------------
-// EVENTOS DE MUSICA
-// ----------------------
-
-client.distube
-    .on("playSong", (queue, song) => {
-        queue.textChannel?.send(`🎵 **Reproduciendo ahora:** ${song.name}`).catch(() => {});
-    })
-    .on("addSong", (queue, song) => {
-        queue.textChannel?.send(`➕ **Añadido:** ${song.name}`).catch(() => {});
-    })
-    .on("error", (channel, e) => {
-        console.error("DisTube Error:", e);
-        if (channel) channel.send(`❌ Error: ${e.message || "Desconocido"}`).catch(() => {});
+    const client = new Client({
+        intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildVoiceStates,
+            GatewayIntentBits.MessageContent,
+        ],
     });
 
-// ----------------------
-// READY
-// ----------------------
+    client.commands = new Collection();
+    client.slashCommands = new Collection();
+    client.snipes = new Map();
 
-client.on("ready", async () => {
-    try {
-        await loadSlash(client);
-        console.log(`» | Bot encendido como: ${client.user.tag}`);
-    } catch (err) {
-        console.error(`Error cargando slash => ${err}`);
+    // 🎵 DIS TUBE
+    client.distube = new DisTube(client, {
+        emitNewSongOnly: true,
+        plugins: [new YouTubePlugin()],
+        ffmpeg: {
+            path: ffmpeg,
+            args: ['-analyzeduration', '0', '-loglevel', '0', '-vn']
+        },
+        savePreviousSongs: true,
+    });
+
+    // ----------------------
+    // CARGAR EVENTOS Y COMANDOS
+    // ----------------------
+
+    const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
+    for (const file of eventFiles) {
+        const event = require(`./events/${file}`);
+        event(client);
     }
-});
 
-client.login(process.env.TOKEN);
+    const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+    for (const file of commandFiles) {
+        const command = require(`./commands/${file}`);
+        client.commands.set(command.name, command);
+    }
+
+    // ----------------------
+    // PREFIJO
+    // ----------------------
+
+    const prefix = ".";
+
+    client.on("messageCreate", async (message) => {
+        if (message.author.bot || !message.guild || !message.content.startsWith(prefix)) return;
+
+        const args = message.content.slice(prefix.length).trim().split(/ +/);
+        const commandName = args.shift().toLowerCase();
+
+        const command = client.commands.get(commandName) ||
+                        client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+
+        if (!command) return;
+
+        try {
+            await command.execute(message, args, client);
+        } catch (err) {
+            console.error("Error en comando:", err);
+            if (message.channel) {
+                message.channel.send("❌ Ocurrió un error al ejecutar el comando.").catch(() => {});
+            }
+        }
+    });
+
+    // Slash commands
+
+    // ----------------------
+    // EVENTOS DE MUSICA
+    // ----------------------
+
+    client.distube
+        .on("playSong", (queue, song) => {
+            queue.textChannel?.send(`🎵 **Reproduciendo ahora:** ${song.name}`).catch(() => {});
+        })
+        .on("addSong", (queue, song) => {
+            queue.textChannel?.send(`➕ **Añadido:** ${song.name}`).catch(() => {});
+        })
+        .on("error", (channel, e) => {
+            console.error("DisTube Error:", e);
+            if (channel) channel.send(`❌ Error: ${e.message || "Desconocido"}`).catch(() => {});
+        });
+
+    // ----------------------
+    // READY
+    // ----------------------
+
+    client.on("clientReady", async () => {
+        try {
+            await loadSlash(client);
+            console.log(`» | Bot encendido como: ${client.user.tag}`);
+        } catch (err) {
+            console.error(`Error cargando slash => ${err}`);
+        }
+    });
+
+    client.login(process.env.TOKEN);
