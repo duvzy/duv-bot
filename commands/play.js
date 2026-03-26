@@ -1,14 +1,5 @@
-/**
- * @typedef {Object} Command
- * @property {string} name
- * @property {string[]} [aliases]
- * @property {string} [description]
- * @property {Function} execute
- */
-
-/** @type {Command} */
 module.exports = {
-    name: 'play'
+    name: 'play',
     aliases: ['p'],
     description: 'Reproduce una canción de YouTube o busca por nombre',
 
@@ -23,12 +14,15 @@ module.exports = {
         }
 
         try {
-            
+            // DisTube se encarga de todo: buscar + unirse al voice + reproducir
             await client.distube.play(message.member.voice.channel, query, {
                 member: message.member,
                 textChannel: message.channel,
                 message: message
             });
+
+            // El mensaje de "Añadido" o "Reproduciendo" lo maneja automáticamente 
+            // gracias a los eventos que ya tienes en el index.js
 
         } catch (error) {
             console.error(error);
