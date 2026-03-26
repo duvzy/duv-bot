@@ -4,6 +4,7 @@ const { YouTubePlugin } = require("@distube/youtube");
 const { loadSlash } = require("./handlers/slashHandler");
 require("dotenv").config();
 const fs = require("fs");
+const ffmpeg = require("ffmpeg-static");
 
 const client = new Client({
     intents: [
@@ -22,7 +23,16 @@ client.snipes = new Map();
 // 🎵 DIS TUBE
 client.distube = new DisTube(client, {
     emitNewSongOnly: true,
-    plugins: [new YouTubePlugin()]
+    plugins: [new YouTubePlugin()],
+    ffmpeg: {
+        path: ffmpeg,
+        args: ['-analyzeduration', '0', '-loglevel', '0', '-vn']
+    },
+    leaveOnEmpty: true,
+    leaveOnStop: false,
+    leaveOnFinish: false,
+    savePreviousSongs: true,
+    joinNewVoiceChannel: true
 });
 
 // ----------------------
@@ -72,12 +82,13 @@ client.on("messageCreate", async (message) => {
         command.execute(message, args, client);
     } catch (err) {
         console.error("Error en comando:", err);
+        message.reply("❌ Ocurrió un error al ejecutar el comando.");
     }
 
 });
 
 // ----------------------
-// SLASH COMMANDS (/play)
+// SLASH COMMANDS
 // ----------------------
 
 client.on("interactionCreate", async (interaction) => {
@@ -98,20 +109,29 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 // ----------------------
-// EVENTOS DE MUSICA
+// EVENTOS DE MUSICA (mejorados)
 // ----------------------
 
 client.distube
-.on("playSong", (queue, song) =>
-    queue.textChannel.send(`🎵 Reproduciendo **${song.name}**`)
-)
-.on("addSong", (queue, song) =>
-    queue.textChannel.send(`➕ Añadido **${song.name}** a la cola`)
-)
-.on("error", (channel, e) => {
-    console.error(e);
-    channel.send("❌ Error reproduciendo música");
-});
+    .on("playSong", (queue, song) => {
+        queue.textChannel.send(`🎵 **Reproduciendo ahora:** ${song.name} - \`${song.formattedDuration}\``);
+    })
+    .on("addSong", (queue, song) => {
+        queue.textChannel.send(`➕ **Añadido a la cola:** ${song.name} - \`${song.formattedDuration}\``);
+    })
+    .on("addList", (queue, playlist) => {
+        queue.textChannel.send(`📜 Añadida playlist: **${playlist.name}** (${playlist.songs.length} canciones)`);
+    })
+    .on("error", (channel, e) => {
+        console.error(e);
+        if (channel) channel.send(`❌ Error: ${e.message ? e.message : "Algo salió mal con la música"}`);
+    })
+    .on("empty", queue => {
+        queue.textChannel.send("😶 El canal de voz se quedó vacío, me voy...");
+    })
+    .on("finish", queue => {
+        queue.textChannel.send("✅ Cola terminada.");
+    });
 
 // ----------------------
 // READY
@@ -121,10 +141,10 @@ client.on("clientReady", async () => {
 
     try {
         await loadSlash(client);
-        console.log("» | Slash cargados");
+        console.log("» | Slash commands cargados");
         console.log(`» | Bot encendido como: ${client.user.tag}`);
     } catch (err) {
-        console.error(`Error => ${err}`);
+        console.error(`Error cargando slash => ${err}`);
     }
 
 });
