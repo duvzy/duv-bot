@@ -28,26 +28,20 @@ client.distube = new DisTube(client, {
         path: ffmpeg,
         args: ['-analyzeduration', '0', '-loglevel', '0', '-vn']
     },
-    savePreviousSongs: true
+    savePreviousSongs: true,
 });
 
 // ----------------------
-// CARGAR EVENTOS
+// CARGAR EVENTOS Y COMANDOS
 // ----------------------
 
 const eventFiles = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
-
 for (const file of eventFiles) {
     const event = require(`./events/${file}`);
     event(client);
 }
 
-// ----------------------
-// CARGAR COMANDOS
-// ----------------------
-
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
-
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);
@@ -60,9 +54,7 @@ for (const file of commandFiles) {
 const prefix = ".";
 
 client.on("messageCreate", async (message) => {
-    if (message.author.bot) return;
-    if (!message.guild) return;
-    if (!message.content.startsWith(prefix)) return;
+    if (message.author.bot || !message.guild || !message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
@@ -73,30 +65,16 @@ client.on("messageCreate", async (message) => {
     if (!command) return;
 
     try {
-        command.execute(message, args, client);
+        await command.execute(message, args, client);
     } catch (err) {
         console.error("Error en comando:", err);
-        message.reply("❌ Ocurrió un error al ejecutar el comando.").catch(() => {});
+        if (message.channel) {
+            message.channel.send("❌ Ocurrió un error al ejecutar el comando.").catch(() => {});
+        }
     }
 });
 
-// ----------------------
-// SLASH COMMANDS
-// ----------------------
-
-client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-
-    const command = client.slashCommands.get(interaction.commandName);
-    if (!command) return;
-
-    try {
-        await command.execute(interaction, client);
-    } catch (err) {
-        console.error(err);
-        interaction.reply({ content: "❌ Error ejecutando comando", ephemeral: true }).catch(() => {});
-    }
-});
+// Slash commands
 
 // ----------------------
 // EVENTOS DE MUSICA
@@ -104,10 +82,10 @@ client.on("interactionCreate", async (interaction) => {
 
 client.distube
     .on("playSong", (queue, song) => {
-        queue.textChannel.send(`🎵 **Reproduciendo ahora:** ${song.name}`).catch(() => {});
+        queue.textChannel?.send(`🎵 **Reproduciendo ahora:** ${song.name}`).catch(() => {});
     })
     .on("addSong", (queue, song) => {
-        queue.textChannel.send(`➕ **Añadido a la cola:** ${song.name}`).catch(() => {});
+        queue.textChannel?.send(`➕ **Añadido:** ${song.name}`).catch(() => {});
     })
     .on("error", (channel, e) => {
         console.error("DisTube Error:", e);
@@ -121,15 +99,10 @@ client.distube
 client.on("ready", async () => {
     try {
         await loadSlash(client);
-        console.log("» | Slash commands cargados");
         console.log(`» | Bot encendido como: ${client.user.tag}`);
     } catch (err) {
         console.error(`Error cargando slash => ${err}`);
     }
 });
-
-// ----------------------
-// LOGIN
-// ----------------------
 
 client.login(process.env.TOKEN);
