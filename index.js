@@ -89,4 +89,46 @@ client.on("clientReady", async () => {
     }
 });
 
+// ====================
+// TRACKING DE STATS 
+// ====================
+client.userStats = new Map();
+client.on("messageCreate", async (message) => {
+    if (message.author.bot || !message.guild) return;
+
+    const guildId = message.guild.id;
+    const userId = message.author.id;
+
+    if (!client.userStats.has(guildId)) client.userStats.set(guildId, new Map());
+    const guildStats = client.userStats.get(guildId);
+
+    if (!guildStats.has(userId)) guildStats.set(userId, { messages: 0, voiceTime: 0, joinVoiceTime: null });
+
+    const userData = guildStats.get(userId);
+    userData.messages++;
+});
+
+client.on("voiceStateUpdate", (oldState, newState) => {
+    const guildId = newState.guild.id;
+    const userId = newState.id;
+
+    if (!client.userStats.has(guildId)) client.userStats.set(guildId, new Map());
+    const guildStats = client.userStats.get(guildId);
+
+    if (!guildStats.has(userId)) guildStats.set(userId, { messages: 0, voiceTime: 0, joinVoiceTime: null });
+
+    const userData = guildStats.get(userId);
+
+    if (!oldState.channelId && newState.channelId) {
+        userData.joinVoiceTime = Date.now();
+    }
+    else if (oldState.channelId && !newState.channelId) {
+        if (userData.joinVoiceTime) {
+            const timeSpent = Date.now() - userData.joinVoiceTime;
+            userData.voiceTime += timeSpent;
+            userData.joinVoiceTime = null;
+        }
+    }
+});
+
 client.login(process.env.TOKEN);
