@@ -32,9 +32,9 @@ module.exports = (client) => {
         const embed = new EmbedBuilder()
             .setColor('#ff00ff')
             .setTitle(`¡Bienvenido/a a ${member.guild.name}! 🎉`)
-            .setDescription(`Hola **${member.user.tag}**, somos **${member.guild.memberCount}** miembros ahora.\n¡Diviértete y respeta las reglas!`)
+            .setDescription(`Hola **${member.user.tag}**, somos **${member.guild.memberCount}** miembros ahora.\n¡Disfruta y sobre todo debes ser un papu pro six seven!`)
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 512 }))
-            .setImage('https://i.imgur.com/8Z0z2fG.gif')   // puedes cambiar la gif
+            .setImage('https://c.tenor.com/tJO6kM3FePUAAAAC/tenor.gif')
             .setFooter({ text: `ID: ${member.id}` })
             .setTimestamp();
 
