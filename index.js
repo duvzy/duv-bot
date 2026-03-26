@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits, EmbedBuilder } = require("discord.js");
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { DisTube } = require("distube");
 const { YouTubePlugin } = require("@distube/youtube");
 const { loadSlash } = require("./handlers/slashHandler");
@@ -28,7 +28,6 @@ client.distube = new DisTube(client, {
         path: ffmpeg,
         args: ['-analyzeduration', '0', '-loglevel', '0', '-vn']
     },
-    leaveOnEmpty: true,
     leaveOnStop: false,
     leaveOnFinish: false,
     savePreviousSongs: true,
@@ -109,25 +108,22 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 // ----------------------
-// EVENTOS DE MUSICA (mejorados)
+// EVENTOS DE MUSICA
 // ----------------------
 
 client.distube
     .on("playSong", (queue, song) => {
-        queue.textChannel.send(`🎵 **Reproduciendo ahora:** ${song.name} - \`${song.formattedDuration}\``);
+        queue.textChannel.send(`🎵 **Reproduciendo ahora:** ${song.name} - \`${song.formattedDuration || "En vivo"}\``);
     })
     .on("addSong", (queue, song) => {
-        queue.textChannel.send(`➕ **Añadido a la cola:** ${song.name} - \`${song.formattedDuration}\``);
+        queue.textChannel.send(`➕ **Añadido a la cola:** ${song.name}`);
     })
     .on("addList", (queue, playlist) => {
-        queue.textChannel.send(`📜 Añadida playlist: **${playlist.name}** (${playlist.songs.length} canciones)`);
+        queue.textChannel.send(`📜 **Playlist añadida:** ${playlist.name} (${playlist.songs.length} canciones)`);
     })
     .on("error", (channel, e) => {
-        console.error(e);
-        if (channel) channel.send(`❌ Error: ${e.message ? e.message : "Algo salió mal con la música"}`);
-    })
-    .on("empty", queue => {
-        queue.textChannel.send("😶 El canal de voz se quedó vacío, me voy...");
+        console.error("DisTube Error:", e);
+        if (channel) channel.send(`❌ Error reproduciendo música: ${e.message || "Desconocido"}`);
     })
     .on("finish", queue => {
         queue.textChannel.send("✅ Cola terminada.");
@@ -137,14 +133,14 @@ client.distube
 // READY
 // ----------------------
 
-client.on("clientReady", async () => {
+client.on("ready", async () => {
 
     try {
         await loadSlash(client);
-        console.log("» | Slash commands cargados");
+        console.log("» | Slash commands cargados correctamente");
         console.log(`» | Bot encendido como: ${client.user.tag}`);
     } catch (err) {
-        console.error(`Error cargando slash => ${err}`);
+        console.error(`Error cargando slash commands => ${err}`);
     }
 
 });
